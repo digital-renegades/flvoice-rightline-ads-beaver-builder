@@ -22,6 +22,10 @@ class CPT_Ads {
 	public static function init(): void {
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_read_ad_to_read' ), 10, 4 );
+		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns', array( __CLASS__, 'add_list_columns' ) );
+		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'render_list_column' ), 10, 2 );
+		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'sortable_columns' ) );
+		add_action( 'pre_get_posts', array( __CLASS__, 'orderby_ad_type' ) );
 	}
 
 	/**
@@ -92,6 +96,75 @@ class CPT_Ads {
 		);
 
 		register_post_type( self::POST_TYPE, $args );
+	}
+
+	/**
+	 * Adds Ad Type column to the Ads list table.
+	 *
+	 * @param string[] $columns Existing columns.
+	 * @return string[]
+	 */
+	public static function add_list_columns( array $columns ): array {
+		$insert = array( 'rightline_ad_type' => __( 'Ad Type', 'rightline-ads' ) );
+		$pos    = array_search( 'title', array_keys( $columns ), true );
+		if ( false !== $pos ) {
+			$keys  = array_keys( $columns );
+			$after = array_slice( $columns, 0, $pos + 1, true );
+			$rest  = array_slice( $columns, $pos + 1, null, true );
+			return $after + $insert + $rest;
+		}
+		return $insert + $columns;
+	}
+
+	/**
+	 * Outputs the Ad Type column content for each row.
+	 *
+	 * @param string $column  Column key.
+	 * @param int    $post_id Post ID.
+	 */
+	public static function render_list_column( string $column, int $post_id ): void {
+		if ( 'rightline_ad_type' !== $column ) {
+			return;
+		}
+		$ad_type = get_post_meta( $post_id, Ad_Meta::META_AD_TYPE, true );
+		if ( '' === $ad_type ) {
+			$ad_type = 'banner';
+		}
+		$types = self::get_ad_types();
+		$label = isset( $types[ $ad_type ] ) ? $types[ $ad_type ] : $ad_type;
+		echo esc_html( $label );
+	}
+
+	/**
+	 * Makes the Ad Type column sortable.
+	 *
+	 * @param string[] $columns Sortable columns.
+	 * @return string[]
+	 */
+	public static function sortable_columns( array $columns ): array {
+		$columns['rightline_ad_type'] = 'rightline_ad_type';
+		return $columns;
+	}
+
+	/**
+	 * Handles ordering by Ad Type (meta value) on the Ads list screen.
+	 *
+	 * @param \WP_Query $query Main query.
+	 */
+	public static function orderby_ad_type( \WP_Query $query ): void {
+		if ( ! $query->is_main_query() || ! is_admin() ) {
+			return;
+		}
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || self::POST_TYPE !== $screen->post_type || 'edit' !== $screen->id ) {
+			return;
+		}
+		$orderby = $query->get( 'orderby' );
+		if ( 'rightline_ad_type' !== $orderby ) {
+			return;
+		}
+		$query->set( 'meta_key', Ad_Meta::META_AD_TYPE );
+		$query->set( 'orderby', 'meta_value' );
 	}
 
 	public static function get_ad_types(): array {

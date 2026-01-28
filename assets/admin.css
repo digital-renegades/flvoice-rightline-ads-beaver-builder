@@ -8,6 +8,12 @@
 	padding: 10px 0;
 }
 
+/* Sidebar Ad Type box */
+.rightline-ads-ad-type-sidebar .rightline-ads-dimension-summary {
+	display: block;
+	margin-top: 6px;
+}
+
 .rightline-ads-field {
 	margin-bottom: 30px;
 }

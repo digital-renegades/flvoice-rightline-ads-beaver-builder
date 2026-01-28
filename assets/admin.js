@@ -86,7 +86,7 @@
 			const label = labels[adType] || adType;
 
 			if (dims) {
-				summaryEl.text(label + ': ' + dims.width + ' × ' + dims.height + ' px');
+				summaryEl.text(label + ': Recommended Size: ' + dims.width + ' × ' + dims.height + ' px');
 			} else {
 				summaryEl.text('');
 			}
@@ -116,7 +116,7 @@
 
 				if (breakpointKey && dims[breakpointKey]) {
 					const dim = dims[breakpointKey];
-					dimensionLabel.text('(' + dim.width + ' × ' + dim.height + ' px)');
+					dimensionLabel.text('(Recommended Size: ' + dim.width + ' × ' + dim.height + ' px)');
 				}
 			});
 		}

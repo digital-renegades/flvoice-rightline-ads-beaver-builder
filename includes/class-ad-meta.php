@@ -29,6 +29,15 @@ class Ad_Meta {
 
 	public static function add_meta_boxes(): void {
 		add_meta_box(
+			'rightline_ad_type',
+			__( 'Ad Type', 'rightline-ads' ),
+			array( __CLASS__, 'render_ad_type_meta_box' ),
+			CPT_Ads::POST_TYPE,
+			'side',
+			'high'
+		);
+
+		add_meta_box(
 			'rightline_ad_settings',
 			__( 'Ad Settings', 'rightline-ads' ),
 			array( __CLASS__, 'render_ad_settings_meta_box' ),
@@ -103,6 +112,41 @@ class Ad_Meta {
 		);
 	}
 
+	/**
+	 * Renders the Ad Type meta box in the sidebar.
+	 *
+	 * @param \WP_Post $post Current post object.
+	 */
+	public static function render_ad_type_meta_box( \WP_Post $post ): void {
+		$ad_type = get_post_meta( $post->ID, self::META_AD_TYPE, true );
+		if ( '' === $ad_type ) {
+			$ad_type = 'banner';
+		}
+
+		$ad_types         = CPT_Ads::get_ad_types();
+		$dimensions       = rightline_ads_get_dimensions();
+		$dimension_summary = self::get_dimension_summary_text( $ad_type, $dimensions );
+		?>
+		<div class="rightline-ads-meta-box rightline-ads-ad-type-sidebar">
+			<p class="rightline-ads-field">
+				<label for="rightline_ad_type">
+					<strong><?php esc_html_e( 'Ad Type', 'rightline-ads' ); ?></strong>
+				</label>
+				<select name="rightline_ad_type" id="rightline_ad_type" class="widefat">
+					<?php foreach ( $ad_types as $type_key => $type_label ) : ?>
+						<option value="<?php echo esc_attr( $type_key ); ?>" <?php selected( $ad_type, $type_key ); ?>>
+							<?php echo esc_html( $type_label ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+				<span class="description rightline-ads-dimension-summary" id="rightline-ads-dimension-summary">
+					<?php echo esc_html( $dimension_summary ); ?>
+				</span>
+			</p>
+		</div>
+		<?php
+	}
+
 	public static function render_ad_settings_meta_box( \WP_Post $post ): void {
 		wp_nonce_field( 'rightline_ad_meta_save', 'rightline_ad_meta_nonce' );
 
@@ -117,26 +161,9 @@ class Ad_Meta {
 
 		$ad_types   = CPT_Ads::get_ad_types();
 		$dimensions = rightline_ads_get_dimensions();
-		$dimension_summary = self::get_dimension_summary_text( $ad_type, $dimensions );
 
 		?>
 		<div class="rightline-ads-meta-box">
-			<div class="rightline-ads-field">
-				<label for="rightline_ad_type">
-					<strong><?php esc_html_e( 'Ad Type', 'rightline-ads' ); ?></strong>
-				</label>
-				<select name="rightline_ad_type" id="rightline_ad_type" class="widefat">
-					<?php foreach ( $ad_types as $type_key => $type_label ) : ?>
-						<option value="<?php echo esc_attr( $type_key ); ?>" <?php selected( $ad_type, $type_key ); ?>>
-							<?php echo esc_html( $type_label ); ?>
-						</option>
-					<?php endforeach; ?>
-				</select>
-				<p class="description rightline-ads-dimension-summary" id="rightline-ads-dimension-summary">
-					<?php echo esc_html( $dimension_summary ); ?>
-				</p>
-			</div>
-
 			<div class="rightline-ads-field">
 				<label for="rightline_ad_url">
 					<strong><?php esc_html_e( 'URL', 'rightline-ads' ); ?></strong>
@@ -226,7 +253,7 @@ class Ad_Meta {
 	}
 
 	/**
-	 * Dimension summary for ad type (e.g. "Banner: 1440 × 100 px").
+	 * Dimension summary for ad type (e.g. "Banner: Recommended Size: 1440 × 100 px").
 	 *
 	 * @param string $ad_type    Ad type key.
 	 * @param array  $dimensions rightline_ads_get_dimensions().
@@ -241,7 +268,7 @@ class Ad_Meta {
 		$dim = $dimensions[ $ad_type ]['1440'];
 		return sprintf(
 			/* translators: 1: ad type label, 2: width in pixels, 3: height in pixels */
-			__( '%1$s: %2$d × %3$d px', 'rightline-ads' ),
+			__( '%1$s: Recommended Size: %2$d × %3$d px', 'rightline-ads' ),
 			$label,
 			$dim['width'],
 			$dim['height']
@@ -265,13 +292,24 @@ class Ad_Meta {
 
 		if ( ! empty( $ad_type ) && isset( $dimensions[ $ad_type ][ $breakpoint_key ] ) ) {
 			$dim = $dimensions[ $ad_type ][ $breakpoint_key ];
-			return sprintf( '(%d × %d px)', $dim['width'], $dim['height'] );
+			return sprintf(
+				/* translators: 1: width in pixels, 2: height in pixels */
+				__( '(Recommended Size: %1$d × %2$d px)', 'rightline-ads' ),
+				$dim['width'],
+				$dim['height']
+			);
 		}
 
 		foreach ( $ad_types as $type_key => $type_label ) {
 			if ( isset( $dimensions[ $type_key ][ $breakpoint_key ] ) ) {
 				$dim     = $dimensions[ $type_key ][ $breakpoint_key ];
-				$parts[] = sprintf( '%s: %d × %d px', $type_label, $dim['width'], $dim['height'] );
+				$parts[] = sprintf(
+					/* translators: 1: ad type label, 2: width in pixels, 3: height in pixels */
+					__( '%1$s: Recommended Size: %2$d × %3$d px', 'rightline-ads' ),
+					$type_label,
+					$dim['width'],
+					$dim['height']
+				);
 			}
 		}
 
