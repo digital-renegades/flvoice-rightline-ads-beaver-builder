@@ -1,0 +1,22 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE / Editor
+.idea/
+.vscode/
+*.sublime-*
+
+# Dependencies (if added later)
+node_modules/
+vendor/
+
+# Logs and temp
+*.log
+*.tmp
+.cache/
+
+# WordPress / env (do not commit)
+.env
+.env.local
+wp-config.local.php

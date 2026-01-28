@@ -1,0 +1,82 @@
+/**
+ * Admin CSS for RightLine Ads
+ *
+ * @package RightLine_Ads
+ */
+
+.rightline-ads-meta-box {
+	padding: 10px 0;
+}
+
+.rightline-ads-field {
+	margin-bottom: 30px;
+}
+
+.rightline-ads-field h3 {
+	margin-top: 0;
+	margin-bottom: 10px;
+}
+
+.rightline-ads-field label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 600;
+}
+
+.rightline-ads-field .dimension-label {
+	font-weight: normal;
+	color: #646970;
+	font-style: italic;
+	margin-left: 8px;
+	display: inline-block;
+	line-height: 1.4;
+}
+
+.rightline-ads-field .description {
+	margin-top: 5px;
+	color: #646970;
+	font-size: 13px;
+}
+
+.rightline-ads-image-field {
+	margin-bottom: 25px;
+	padding: 15px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+}
+
+.rightline-ads-image-field label {
+	display: flex;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.rightline-ads-image-field .image-preview {
+	margin-bottom: 12px;
+	min-height: 60px;
+	display: flex;
+	align-items: center;
+}
+
+.rightline-ads-image-field .image-preview img {
+	max-width: 300px;
+	max-height: 200px;
+	height: auto;
+	border: 1px solid #dcdcde;
+	border-radius: 2px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.rightline-ads-image-field .button {
+	margin-right: 8px;
+}
+
+.rightline-ads-remove-button {
+	color: #b32d2e;
+}
+
+.rightline-ads-remove-button:hover {
+	color: #d63638;
+	border-color: #d63638;
+}
